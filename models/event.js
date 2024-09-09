@@ -25,10 +25,19 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  video: {
+    type: String,
+  },
+  meetups: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Meetup'
+  }],
+  
   observations: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Observation'
-  }]
+  }],
+  
 });
 
 

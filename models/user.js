@@ -22,7 +22,11 @@ const userSchema = new mongoose.Schema({
   meetups: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Meetup'
-  }]
+  }],
+  bookings: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Booking'
+  }],
 });
 
 userSchema.set('toJSON', {

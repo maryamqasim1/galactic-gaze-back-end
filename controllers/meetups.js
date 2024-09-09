@@ -5,6 +5,7 @@ const verifyToken = require('../middleware/verify-token.js');
 const isClub = require('../middleware/is-club')
 const Meetup = require('../models/meetup.js')
 const Event = require('../models/event.js')
+const User = require('../models/user');
 
 // DELETE LATER
 // async function insertMockEvent() {
@@ -74,23 +75,16 @@ router.post('/', async (req, res) => {
 
         // // Check if event exists
         const event = await Event.findById(eventid);
-        // if (!event) {
-        //     return res.status(404).json({ error: 'Event not found' });
-        // }
-
-        // // Ensure user is authenticated
-        // if (!req.user || !req.user.id) {
-        //     return res.status(401).json({ error: 'Unauthorized' });
-        // }
-
-        // Create the meetup
         const meetup = await Meetup.create({
             userid: req.user.id,
             eventid,
             location,
             image: event.image
-        });
-
+        })
+        event.meetups.push(meetup._id);
+        await event.save();
+        Usser.meetups.push(meetup._id);
+        await Usser.save();
         res.status(201).json(meetup);
     } catch (error) {
         console.error('Error creating meetup:', error);

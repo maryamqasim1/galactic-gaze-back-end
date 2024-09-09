@@ -4,6 +4,7 @@ const isAdmin = require('../middleware/is-admin.js');
 const Event = require('../models/event.js');
 const router = express.Router();
 
+//create new
 router.post('/', verifyToken, isAdmin, async (req, res) => {
   try {
     const event = await Event.create(req.body);
@@ -14,6 +15,7 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
+//index events
 router.get('/', async (req, res) => {
   try {
     const events = await Event.find({}).sort({ dateStarted: 'desc' });
@@ -24,6 +26,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+//event show (details)
 router.get('/:eventId', async (req, res) => {
   try {
     const event = await Event.findById(req.params.eventId)
@@ -37,6 +40,7 @@ router.get('/:eventId', async (req, res) => {
   }
 });
 
+//event edit
 router.put('/:eventId', verifyToken, isAdmin, async (req, res) => {
   try {
     const updatedEvent = await Event.findByIdAndUpdate(
@@ -54,6 +58,7 @@ router.put('/:eventId', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
+//event delete
 router.delete('/:eventId', verifyToken, isAdmin, async (req, res) => {
     try {
       const event = await Event.findById(req.params.eventId);

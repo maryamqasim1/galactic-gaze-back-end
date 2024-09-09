@@ -55,26 +55,27 @@ router.post('/', async (req, res) =>{
         res.status(500).json({message: error.message});
     }
 })
-// obs index for an event
-router.get('/event/:eventId', async (req, res) => {
-    try {
-        const eventId = req.params.eventId;
-        const foundObservations = await Observation.find({ eventid: eventId })
-            .populate('userid')
-            .populate('eventid');
-        res.status(200).json(foundObservations);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
 
-// obs index for a user
-router.get('/user/:userId', async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const observations = await Observation.find({ userid: userId })
-            .populate('eventid'); 
 
+// // obs index for an event
+// router.get('/event/:eventId', async (req, res) => {
+//     try {
+//         const eventId = req.params.eventId;
+//         const foundObservations = await Observation.find({ eventid: eventId })
+//             .populate('userid')
+//             .populate('eventid');
+//         res.status(200).json(foundObservations);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// });
+
+
+// obs index (all observations made by user NOT by event)
+router.get('/', async (req, res) => {
+    try {
+        const observations = await Observation.find({ userid: req.user.id }).populate('eventid'); 
+        //need to check if actually need to populate eventid or not, for later
         if (!observations.length) {
             return res.status(404).json({ message: 'No observations found for this user.' });
         }
@@ -84,12 +85,11 @@ router.get('/user/:userId', async (req, res) => {
     }
 });
 
-
 // Obs details
 router.get('/:id', async (req, res) => {
     try {
         const observationId = req.params.id;
-        const foundObservation = await Observation.findById(observationId)
+        const foundObservation = await Observation.findById(observationId).populate('eventid');
        
         if (!foundObservation) {
             res.status(404);
@@ -112,8 +112,7 @@ router.put('/:id', async (req, res) => {
         const observationId = req.params.id;
         const updatedObservation = await Observation.findByIdAndUpdate(observationId, req.body, {
             new: true,
-        }).populate('userid')
-          .populate('eventid');
+        }).populate('eventid');
 
         if (!updatedObservation) {
             res.status(404);
@@ -125,6 +124,7 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({message: error.message});
     }
 });
+
 
 // Delete an obs
 router.delete('/:id', async (req, res) => {
