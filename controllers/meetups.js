@@ -46,21 +46,58 @@ router.get('/:meetupID', async (req, res) => {
 
 router.use(verifyToken, isClub);
 
+// router.post('/', async (req, res) => {
+//     try {
+//         const { eventid, location } = req.body
+//         const event = await Event.findById(eventid);
+//         const meetup = await Meetup.create({
+//             userid: req.user.id,
+//             eventid,
+//             location,
+//             image: event.image
+//         })
+//         console.log(meetup)
+//         res.status(201).json(meetup);
+//     } catch (error) {
+//         res.status(500).json(error);
+//     }
+// })
+
 router.post('/', async (req, res) => {
     try {
-        const { eventid, location } = req.body
+        const { eventid, location } = req.body;
+
+        // Validate input
+        // if (!eventid || !location) {
+        //     return res.status(400).json({ error: 'Event ID and location are required' });
+        // }
+
+        // // Check if event exists
         const event = await Event.findById(eventid);
+        // if (!event) {
+        //     return res.status(404).json({ error: 'Event not found' });
+        // }
+
+        // // Ensure user is authenticated
+        // if (!req.user || !req.user.id) {
+        //     return res.status(401).json({ error: 'Unauthorized' });
+        // }
+
+        // Create the meetup
         const meetup = await Meetup.create({
             userid: req.user.id,
             eventid,
             location,
             image: event.image
-        })
+        });
+
         res.status(201).json(meetup);
     } catch (error) {
-        res.status(500).json(error);
+        console.error('Error creating meetup:', error);
+        res.status(500).json({ error: 'An internal server error occurred' });
     }
-})
+});
+
 
 
 router.put('/:meetupID', async (req, res) => {
