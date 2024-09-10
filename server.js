@@ -9,7 +9,7 @@ const express = require('express');
 
 //contorllers
 const usersRouter = require('./controllers/users');
-const meetups = require('./controllers/meetups');
+const meetupsRouter = require('./controllers/meetups');
 const observationsRouter = require('./controllers/observations');
 const eventsRouter = require('./controllers/events.js');
 const bookingsRouter = require ('./controllers/bookings')
@@ -26,7 +26,7 @@ app.use(express.json());
 
 // Routes
 app.use('/users', usersRouter);
-app.use('/meetups', meetups);
+app.use('/meetups', meetupsRouter);
 app.use('/observations', observationsRouter);
 app.use('/events', eventsRouter);
 app.use('/bookings',bookingsRouter)

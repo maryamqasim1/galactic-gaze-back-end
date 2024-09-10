@@ -7,37 +7,18 @@ const User = require('../models/user');
 const Event = require('../models/event');
 
 
-// DELETE LATER
-// const Event = require('../models/event.js')
-// async function insertMockEvent() {
-//     try {
-//         const event = new Event({
-//             name: 'Sample Event',
-//             description: 'This is a description of the sample event.',
-//             datetime: new Date('2024-10-01T10:00:00Z'),
-//             location: '123 Sample Street, Sample City, SC',
-//             coordinates: '40.7128,-74.0060',
-//             image: 'http://example.com/sample-image.jpg',
-//             observations: [],
-
-//         });
-//         await event.save();
-//         console.log('Mock event inserted successfully.');
-//     } catch (error) {
-//         console.error('Error inserting mock event:', error);
-//     }
-// }
-// insertMockEvent();
-
-
-router.use(verifyToken, isUser);
+// router.use(verifyToken, isUser);
 
 // obs create
-router.post('/', async (req, res) =>{
+router.post('/',verifyToken, isUser ,async (req, res) =>{
     try{
         const {eventid, visibility, notes, image} = req.body;
         const event = await Event.findById(eventid);
-        const Usser = await User.findById(req.user.id);
+        const Usser = await User.findById(req.user.id).populate('observations');
+
+        if (Usser.observations.some(obs => obs.eventid.equals(eventid))) {
+            return res.status(409).json(`Observations already exist for this event!`);
+        }
         const observation= await Observation.create({
             userid: req.user.id,
             eventid: eventid,
@@ -57,22 +38,8 @@ router.post('/', async (req, res) =>{
 })
 
 
-// // obs index for an event
-// router.get('/event/:eventId', async (req, res) => {
-//     try {
-//         const eventId = req.params.eventId;
-//         const foundObservations = await Observation.find({ eventid: eventId })
-//             .populate('userid')
-//             .populate('eventid');
-//         res.status(200).json(foundObservations);
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// });
-
-
 // obs index (all observations made by user NOT by event)
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, isUser,async (req, res) => {
     try {
         const observations = await Observation.find({ userid: req.user.id }).populate('eventid'); 
         //need to check if actually need to populate eventid or not, for later
@@ -84,6 +51,21 @@ router.get('/', async (req, res) => {
         res.status(500).json(error);
     }
 });
+
+//all observations made in website
+router.get('/all', async (req, res, next) => {
+    try {
+        const observations = await Observation.find({ }).populate('eventid'); 
+        // Need to check if actually need to populate eventid or not, for later
+        if (!observations.length) {
+            return res.status(404).json({ message: 'No observations have been created yet.' });
+        }
+        res.json(observations);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
 
 // Obs details
 router.get('/:id', async (req, res) => {
@@ -107,7 +89,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update an obs
-router.put('/:id', async (req, res) => {
+router.put('/:id',verifyToken, isUser, async (req, res) => {
     try {
         const observationId = req.params.id;
         const updatedObservation = await Observation.findByIdAndUpdate(observationId, req.body, {
@@ -126,8 +108,8 @@ router.put('/:id', async (req, res) => {
 });
 
 
-// Delete an obs
-router.delete('/:id', async (req, res) => {
+// Delete an obs, as well as remove the observation from events array and the observation from user's observations
+router.delete('/:id', verifyToken, isUser,async (req, res) => {
     try {
         const observationId = req.params.id;
         const deleteObservation = await Observation.findByIdAndDelete(observationId);
