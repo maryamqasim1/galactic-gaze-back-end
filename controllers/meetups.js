@@ -60,7 +60,6 @@ router.post('/', async (req, res) => {
 });
 
 
-
 router.put('/:meetupID', async (req, res) => {
     try {
         const meetup = await Meetup.findById(req.params.meetupID);
