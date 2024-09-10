@@ -35,33 +35,10 @@ router.get('/:meetupID', async (req, res) => {
 
 router.use(verifyToken, isClub);
 
-// router.post('/', async (req, res) => {
-//     try {
-//         const { eventid, location } = req.body
-//         const event = await Event.findById(eventid);
-//         const meetup = await Meetup.create({
-//             userid: req.user.id,
-//             eventid,
-//             location,
-//             image: event.image
-//         })
-//         console.log(meetup)
-//         res.status(201).json(meetup);
-//     } catch (error) {
-//         res.status(500).json(error);
-//     }
-// })
-
 router.post('/', async (req, res) => {
     try {
         const { eventid, location } = req.body;
 
-        // Validate input
-        // if (!eventid || !location) {
-        //     return res.status(400).json({ error: 'Event ID and location are required' });
-        // }
-
-        // // Check if event exists
         const event = await Event.findById(eventid);
         const Usser = await User.findById(req.user.id).populate('meetups');
         if (Usser.meetups.some(meet => meet.eventid.equals(eventid))){
