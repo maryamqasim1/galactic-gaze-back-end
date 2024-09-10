@@ -37,8 +37,7 @@ router.use(verifyToken, isClub);
 
 router.post('/', async (req, res) => {
     try {
-        const { eventid, location } = req.body;
-
+        const { eventid, location } = req.body
         const event = await Event.findById(eventid);
         const Usser = await User.findById(req.user.id).populate('meetups');
         if (Usser.meetups.some(meet => meet.eventid.equals(eventid))){
@@ -56,8 +55,7 @@ router.post('/', async (req, res) => {
         await Usser.save();
         res.status(201).json(meetup);
     } catch (error) {
-        console.error('Error creating meetup:', error);
-        res.status(500).json({ error: 'An internal server error occurred' });
+        res.status(500).json(error);
     }
 });
 
