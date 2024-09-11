@@ -10,7 +10,7 @@ const Booking = require ('../models/booking.js');
 router.use(verifyToken, isUser);
 
 //create a new booking
-router.post('/', async (req, res, next) => {
+router.post('/',async (req, res, next) => {
     try{
         const {meetupid} = req.body;
         const meetup = await Meetup.findById(meetupid);
@@ -37,7 +37,14 @@ router.post('/', async (req, res, next) => {
 //see all bookings of user, plus send the details of each meetup with it as well
 router.get('/', async (req, res, next) => {
     try {
-        const bookings = await Booking.find({ userid: req.user.id }).populate('meetupid');
+        const bookings = await Booking.find({ userid: req.user.id })
+        .populate({
+            path:'meetupid',
+            populate:{
+                path:'eventid'
+            }
+        })
+        .populate('userid'); // Add this line to populate the user details
         if (!bookings.length) {
             return res.status(404).json({ message: 'No bookings have been created yet.' });
           }
