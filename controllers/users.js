@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/signup', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { name, username, password } = req.body;
 
     const existingUser = await User.findOne({ username });
 
@@ -17,7 +17,7 @@ router.post('/signup', async (req, res) => {
 
     const hashedPassword = bcrypt.hashSync(password, parseInt(process.env.SALT_ROUNDS));
 
-    const user = await User.create({ username, hashedPassword });
+    const user = await User.create({ name, username, hashedPassword });
     return res.status(201).json({user});
   } catch (error) {
     res.status(400).json({ error: 'Something wen wrong, try again.' });
@@ -44,6 +44,7 @@ router.post('/signin', async (req, res) => {
       {
         id: existingUser._id,
         username: existingUser.username,
+        name: existingUser.name,
         type: existingUser.type
       },
       process.env.JWT_SECRET

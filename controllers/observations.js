@@ -6,9 +6,6 @@ const Observation = require('../models/observation');
 const User = require('../models/user');
 const Event = require('../models/event');
 
-
-// router.use(verifyToken, isUser);
-
 // obs create
 router.post('/',verifyToken, isUser ,async (req, res) =>{
     try{
@@ -41,7 +38,7 @@ router.post('/',verifyToken, isUser ,async (req, res) =>{
 // obs index (all observations made by user NOT by event)
 router.get('/', verifyToken, isUser,async (req, res) => {
     try {
-        const observations = await Observation.find({ userid: req.user.id }).populate('eventid'); 
+        const observations = await Observation.find({ userid: req.user.id }).populate('userid').populate('eventid'); 
         //need to check if actually need to populate eventid or not, for later
         if (!observations.length) {
             return res.status(404).json({ message: 'No observations found for this user.' });
@@ -71,7 +68,7 @@ router.get('/all', async (req, res, next) => {
 router.get('/:id', async (req, res) => {
     try {
         const observationId = req.params.id;
-        const foundObservation = await Observation.findById(observationId).populate('eventid');
+        const foundObservation = await Observation.findById(observationId).populate('eventid').populate('userid');
        
         if (!foundObservation) {
             res.status(404);

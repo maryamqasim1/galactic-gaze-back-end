@@ -34,7 +34,11 @@ router.get('/', async (req, res) => {
 //event show (details) - it also shows details of observations related to each event
 router.get('/:eventId', async (req, res) => {
   try {
-    const event = await Event.findById(req.params.eventId).populate('observations')
+    const event = await Event.findById(req.params.eventId).populate({
+      path: 'observations',
+      populate: {
+        path: 'userid'      }
+    })
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
